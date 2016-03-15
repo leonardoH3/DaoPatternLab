@@ -22,11 +22,14 @@ import edu.eci.pdsw.samples.persistence.PersistenceException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -62,7 +65,7 @@ public class PacientePersistenceTest {
     }
     
     @Test
-    public void TestPrimeraClase() throws IOException, PersistenceException{
+    public void TestPrimeraClase() throws IOException, PersistenceException, ParseException{
         //Paciente nuevo que se registra con más de una consulta
         InputStream input = null;
         input = ClassLoader.getSystemResourceAsStream("applicationconfig_test.properties"); 
@@ -72,14 +75,21 @@ public class PacientePersistenceTest {
         daof.beginSession();
         try{
             //IMPLEMENTACION DE LAS PRUEBAS
-            Paciente p = new Paciente(1023,"cc","Alberto",java.sql.Date.valueOf("2000-01-01"));
-            Consulta c= new Consulta();    
-            Consulta cc= new Consulta(); 
+            Paciente p = new Paciente(1025,"cc","Alberto",java.sql.Date.valueOf("2000-01-01"));
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+            String strDate = "2011-12-31 00:00:00";
+            java.util.Date date = sdf.parse(strDate);   
+            java.sql.Date sqlDate = new Date(date.getTime());
+            Consulta c= new Consulta(12345654,sqlDate,"Tiene una fuerte gripa");    
+            Consulta cc= new Consulta(12345653,sqlDate,"Fiebre muy alta"); 
             Set s = new HashSet<Consulta>();
             s.add(c);           
             s.add(cc);
             p.setConsultas(s);
             daof.getDaoPaciente().save(p);
+            Paciente p2=daof.getDaoPaciente().load(1025, "cc");
+            Assert.assertEquals("No se guardo correctamente el paciente nuevo con mas de una consulta","Alberto",p2.getNombre());
+            Assert.assertEquals("No se guardo correctamente el paciente nuevo con mas de una consulta",1025,p2.getId());      
             daof.commitTransaction();
             daof.endSession();
         }
@@ -89,7 +99,7 @@ public class PacientePersistenceTest {
             Logger.getLogger(PacientePersistenceTest.class.getName()).log(Level.SEVERE, null, ex);
         }    
     }
-    
+    @Test
     public void TestSegundaClase() throws IOException, PersistenceException{
         //Paciente nuevo que se registra sin consultas
         InputStream input = null;
@@ -100,7 +110,7 @@ public class PacientePersistenceTest {
         daof.beginSession();
         try{
             //IMPLEMENTACION DE LAS PRUEBAS
-            Paciente p = new Paciente(1023,"cc","Alberto",java.sql.Date.valueOf("2000-01-01"));           
+            Paciente p = new Paciente(1026,"cc","Alberto",java.sql.Date.valueOf("2000-01-01"));           
             daof.getDaoPaciente().save(p);
             daof.commitTransaction();
             daof.endSession();
@@ -113,8 +123,8 @@ public class PacientePersistenceTest {
     }
     
    
-    
-    public void TestTerceraClase() throws IOException, PersistenceException{
+    @Test
+    public void TestTerceraClase() throws IOException, PersistenceException, ParseException{
         //Paciente nuevo que se registra con sólo una consulta
         InputStream input = null;
         input = ClassLoader.getSystemResourceAsStream("applicationconfig_test.properties"); 
@@ -124,8 +134,12 @@ public class PacientePersistenceTest {
         daof.beginSession();
         try{
             //IMPLEMENTACION DE LAS PRUEBAS
-            Paciente p = new Paciente(1023,"cc","Alberto",java.sql.Date.valueOf("2000-01-01"));
-            Consulta c= new Consulta();            
+            Paciente p = new Paciente(1027,"cc","Alberto",java.sql.Date.valueOf("2000-01-01"));
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+            String strDate = "2011-12-31 00:00:00";
+            java.util.Date date = sdf.parse(strDate);   
+            java.sql.Date sqlDate = new Date(date.getTime());
+            Consulta c= new Consulta(123456765,sqlDate,"Tiene una fuerte gripa");         
             Set s = new HashSet<Consulta>();
             s.add(c);           
             p.setConsultas(s);
@@ -140,8 +154,8 @@ public class PacientePersistenceTest {
         }
        
     }
-    
-    public void TestCuartaClase() throws IOException, PersistenceException{
+    @Test
+    public void TestCuartaClase() throws IOException, PersistenceException, ParseException{
         //Paciente nuevo YA existente que se registra con más de una consulta
         InputStream input = null;
         input = ClassLoader.getSystemResourceAsStream("applicationconfig_test.properties"); 
@@ -152,8 +166,12 @@ public class PacientePersistenceTest {
         try{
             //IMPLEMENTACION DE LAS PRUEBAS
             Paciente p = new Paciente(1023,"cc","Alberto",java.sql.Date.valueOf("2000-01-01"));
-            Consulta c= new Consulta();
-            Consulta cc= new Consulta();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
+            String strDate = "2011-12-31 00:00:00";
+            java.util.Date date = sdf.parse(strDate);   
+            java.sql.Date sqlDate = new Date(date.getTime());
+            Consulta c= new Consulta(1234543,sqlDate,"Tiene una fuerte gripa"); 
+            Consulta cc= new Consulta(1234542,sqlDate,"Tiene una fuerte fiebre");
             Set s = new HashSet<Consulta>();
             s.add(c);
             s.add(cc);

@@ -44,13 +44,14 @@ public class JDBCDaoPaciente implements DaoPaciente {
         Paciente pa=null;
         PreparedStatement ps;
         ResultSet resultado;
-        String inputString ="SELECT nombre,fecha_nacimiento FROM PACIENTES WHERE id=? AND tipo_id=?";
+        String inputString ="select pac.nombre, pac.fecha_nacimiento, con.idCONSULTAS, con.fecha_y_hora, con.resumen from PACIENTES as pac inner join CONSULTAS as con on con.PACIENTES_id=pac.id and con.PACIENTES_tipo_id=pac.tipo_id where pac.id=? and pac.tipo_id=?";
         try {
             ps = con.prepareStatement(inputString);
             ps.setInt(1, idpaciente);
             ps.setString(2, tipoid);      
             resultado=ps.executeQuery();  
             pa = new Paciente(idpaciente,tipoid,resultado.getString(1),resultado.getDate(2));
+            
         } catch (SQLException ex) {
             throw new PersistenceException("An error ocurred while loading "+idpaciente,ex);
         }
@@ -61,19 +62,26 @@ public class JDBCDaoPaciente implements DaoPaciente {
     public void save(Paciente p) throws PersistenceException {
         PreparedStatement ps;
         String inputString ="INSERT INTO PACIENTES VALUES(?,?,?,?)";
+        String inputStringTwo = "INSERT INTO CONSULTAS VALUES(?,?,?,?,?)";
         try {
             ps = con.prepareStatement(inputString);
             ps.setInt(1, p.getId()); 
-            ps.setString(1, p.getTipo_id());    
-            ps.setString(1, p.getNombre());    
-            ps.setDate(1, p.getFechaNacimiento());    
-            ps.execute();            
+            ps.setString(2, p.getTipo_id());    
+            ps.setString(3, p.getNombre());    
+            ps.setDate(4, p.getFechaNacimiento());    
+            ps.execute(); 
+            for(Consulta c:p.getConsultas()){
+                ps = con.prepareStatement(inputStringTwo);
+                ps.setInt(1,c.getId());
+                ps.setDate(2,c.getFechayHora());
+                ps.setString(3,c.getResumen());
+                ps.setInt(4,p.getId());
+                ps.setString(5,p.getTipo_id());
+                ps.execute(); 
+            }
         } catch (SQLException ex) {
             throw new PersistenceException("An error ocurred while loading a product.",ex);
         }
-        
-        throw new RuntimeException("No se ha implementado el metodo 'save' del DAOPAcienteJDBC");
-
     }
 
     @Override
