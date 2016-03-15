@@ -41,27 +41,38 @@ public class JDBCDaoPaciente implements DaoPaciente {
 
     @Override
     public Paciente load(int idpaciente, String tipoid) throws PersistenceException {
+        Paciente pa=null;
         PreparedStatement ps;
-        /*try {
-            
-            
+        ResultSet resultado;
+        String inputString ="SELECT nombre,fecha_nacimiento FROM PACIENTES WHERE id=? AND tipo_id=?";
+        try {
+            ps = con.prepareStatement(inputString);
+            ps.setInt(1, idpaciente);
+            ps.setString(2, tipoid);      
+            resultado=ps.executeQuery();  
+            pa = new Paciente(idpaciente,tipoid,resultado.getString(1),resultado.getDate(2));
         } catch (SQLException ex) {
             throw new PersistenceException("An error ocurred while loading "+idpaciente,ex);
-        }*/
-        throw new RuntimeException("No se ha implementado el metodo 'load' del DAOPAcienteJDBC");
+        }
+        return pa;
     }
 
     @Override
     public void save(Paciente p) throws PersistenceException {
         PreparedStatement ps;
-        /*try {
-        
-            
+        String inputString ="INSERT INTO PACIENTES VALUES(?,?,?,?)";
+        try {
+            ps = con.prepareStatement(inputString);
+            ps.setInt(1, p.getId()); 
+            ps.setString(1, p.getTipo_id());    
+            ps.setString(1, p.getNombre());    
+            ps.setDate(1, p.getFechaNacimiento());    
+            ps.execute();            
         } catch (SQLException ex) {
             throw new PersistenceException("An error ocurred while loading a product.",ex);
-        }*/
+        }
         
-        throw new RuntimeException("No se ha implementado el metodo 'load' del DAOPAcienteJDBC");
+        throw new RuntimeException("No se ha implementado el metodo 'save' del DAOPAcienteJDBC");
 
     }
 
