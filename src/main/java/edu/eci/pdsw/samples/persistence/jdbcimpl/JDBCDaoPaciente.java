@@ -20,11 +20,15 @@ import edu.eci.pdsw.samples.entities.Consulta;
 import edu.eci.pdsw.samples.entities.Paciente;
 import edu.eci.pdsw.samples.persistence.DaoPaciente;
 import edu.eci.pdsw.samples.persistence.PersistenceException;
+import java.sql.Array;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  *
@@ -49,9 +53,24 @@ public class JDBCDaoPaciente implements DaoPaciente {
             ps = con.prepareStatement(inputString);
             ps.setInt(1, idpaciente);
             ps.setString(2, tipoid);      
-            resultado=ps.executeQuery();  
-            pa = new Paciente(idpaciente,tipoid,resultado.getString(1),resultado.getDate(2));
-            
+            resultado=ps.executeQuery();
+            while(resultado.next()){
+                if(resultado.isFirst()){
+                    pa = new Paciente(idpaciente,tipoid,resultado.getString(1),resultado.getDate(2));
+                }
+                Array consultasId = resultado.getArray(3);
+                Array consultasFecha = resultado.getArray(4);
+                Array consultasResumen = resultado.getArray(5);
+                int[] consultasIdTwo = (int[])consultasId.getArray();
+                Date[] consultasFechaTwo = (Date[])consultasFecha.getArray();
+                String[] consultasResumenTwo = (String[])consultasId.getArray();
+                Set s = new HashSet<Consulta>();
+                for (int i = 0; i<consultasIdTwo.length;i++){
+                    Consulta c = new Consulta(consultasIdTwo[i],consultasFechaTwo[i],consultasResumenTwo[i]);
+                    s.add(c);
+                }
+            pa.setConsultas(s);
+            }
         } catch (SQLException ex) {
             throw new PersistenceException("An error ocurred while loading "+idpaciente,ex);
         }
