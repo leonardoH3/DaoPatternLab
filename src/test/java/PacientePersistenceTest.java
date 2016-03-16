@@ -89,7 +89,8 @@ public class PacientePersistenceTest {
             daof.getDaoPaciente().save(p);
             Paciente p2=daof.getDaoPaciente().load(1025, "cc");
             Assert.assertEquals("No se guardo correctamente el paciente nuevo con mas de una consulta","Alberto",p2.getNombre());
-            Assert.assertEquals("No se guardo correctamente el paciente nuevo con mas de una consulta",1025,p2.getId());      
+            Assert.assertEquals("No se guardaron las consultas correctamente",1025,p2.getId());   
+            Assert.assertEquals("No se guardo correctamente la consulta",1025,p2.getFechaNacimiento());
             daof.commitTransaction();
             daof.endSession();
         }
@@ -114,12 +115,19 @@ public class PacientePersistenceTest {
             daof.getDaoPaciente().save(p);
             daof.commitTransaction();
             daof.endSession();
+            
+            Assert.assertEquals("Registro de pacientes sin consultas","cc","Alberto");
+            Assert.assertEquals("Registro de pacientes sin consultas",1026,p.getNombre());
+            //Assert.assertEquals("Verificación de registro de pacientes s consultas",p.setConsultas(),p.getConsultas());
+            daof.commitTransaction();
+            daof.endSession();
         }
         catch (PersistenceException ex) {
             daof.rollbackTransaction();
             daof.endSession();
             Logger.getLogger(PacientePersistenceTest.class.getName()).log(Level.SEVERE, null, ex);
-        }   
+        }  
+     
     }
     
    
@@ -144,6 +152,11 @@ public class PacientePersistenceTest {
             s.add(c);           
             p.setConsultas(s);
             daof.getDaoPaciente().save(p);
+            daof.commitTransaction();
+            daof.endSession();
+            Assert.assertEquals("Registro de pacientes nuevo con sola una consulta",p.getConsultas(),"Alberto");
+            Assert.assertEquals("Registro de pacientes nuevo con sola una consulta",1026,p.getNombre());
+            Assert.assertEquals("Registro de pacientes nuevo con sola una consulta",p.getId(),"Alberto");
             daof.commitTransaction();
             daof.endSession();
         }
@@ -179,6 +192,8 @@ public class PacientePersistenceTest {
             daof.getDaoPaciente().save(p);
             daof.commitTransaction();
             daof.getDaoPaciente().save(p);
+            daof.commitTransaction();
+            daof.endSession();
             daof.commitTransaction();
             daof.endSession();
         }
