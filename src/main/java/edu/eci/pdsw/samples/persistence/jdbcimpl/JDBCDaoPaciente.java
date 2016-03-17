@@ -50,7 +50,7 @@ public class JDBCDaoPaciente implements DaoPaciente {
         Paciente pa=null;
         PreparedStatement ps;
         ResultSet resultado;
-        String inputString ="select pac.nombre, pac.fecha_nacimiento, con.idCONSULTAS, con.fecha_y_hora, con.resumen from PACIENTES as pac inner join CONSULTAS as con on con.PACIENTES_id=pac.id and con.PACIENTES_tipo_id=pac.tipo_id where pac.id=? and pac.tipo_id=?";
+        String inputString ="select pac.nombre, pac.fecha_nacimiento, con.idCONSULTAS, con.fecha_y_hora, con.resumen from PACIENTES as pac left join CONSULTAS as con on con.PACIENTES_id=pac.id and con.PACIENTES_tipo_id=pac.tipo_id where pac.id=? and pac.tipo_id=?";
         try {
             ps = con.prepareStatement(inputString);
             ps.setInt(1, idpaciente);
