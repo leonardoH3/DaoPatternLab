@@ -29,6 +29,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -52,25 +54,20 @@ public class JDBCDaoPaciente implements DaoPaciente {
         try {
             ps = con.prepareStatement(inputString);
             ps.setInt(1, idpaciente);
-            ps.setString(2, tipoid);      
+            ps.setString(2, tipoid); 
+            Set s = new HashSet<Consulta>();
             resultado=ps.executeQuery();
             while(resultado.next()){
                 if(resultado.isFirst()){
                     pa = new Paciente(idpaciente,tipoid,resultado.getString(1),resultado.getDate(2));
                 }
-                Array consultasId = resultado.getArray(3);
-                Array consultasFecha = resultado.getArray(4);
-                Array consultasResumen = resultado.getArray(5);
-                int[] consultasIdTwo = (int[])consultasId.getArray();
-                Date[] consultasFechaTwo = (Date[])consultasFecha.getArray();
-                String[] consultasResumenTwo = (String[])consultasId.getArray();
-                Set s = new HashSet<Consulta>();
-                for (int i = 0; i<consultasIdTwo.length;i++){
-                    Consulta c = new Consulta(consultasIdTwo[i],consultasFechaTwo[i],consultasResumenTwo[i]);
-                    s.add(c);
-                }
-            pa.setConsultas(s);
+                int consultasId = resultado.getInt(3);
+                Date consultasFecha = resultado.getDate(4);
+                String consultasResumen = resultado.getString(5);               
+                Consulta c = new Consulta(consultasId,consultasFecha,consultasResumen);
+                s.add(c);
             }
+            pa.setConsultas(s);
         } catch (SQLException ex) {
             throw new PersistenceException("An error ocurred while loading "+idpaciente,ex);
         }
@@ -78,16 +75,25 @@ public class JDBCDaoPaciente implements DaoPaciente {
     }
 
     @Override
-    public void save(Paciente p) throws PersistenceException {
+    public void save(Paciente p) throws PersistenceException{
         PreparedStatement ps;
-        String inputString ="INSERT INTO PACIENTES VALUES(?,?,?,?)";
+        ResultSet resultado;
+        String inputString ="INSERT INTO PACIENTES VALUES (?,?,?,?)";
         String inputStringTwo = "INSERT INTO CONSULTAS VALUES(?,?,?,?,?)";
+        String inputStringThree = "SELECT nombre FROM PACIENTES WHERE id=? AND tipo_id=?";
         try {
+            ps = con.prepareStatement(inputStringThree);
+            ps.setInt(1, p.getId());
+            ps.setString(2, p.getTipo_id());
+            resultado=ps.executeQuery();
+            if(resultado.first()){
+               throw new PersistenceException("El paciente ya se encuentra registrado");
+            }
             ps = con.prepareStatement(inputString);
-            ps.setInt(1, p.getId()); 
-            ps.setString(2, p.getTipo_id());    
-            ps.setString(3, p.getNombre());    
-            ps.setDate(4, p.getFechaNacimiento());    
+            ps.setInt(1, p.getId());
+            ps.setString(2, p.getTipo_id());
+            ps.setString(3, p.getNombre());
+            ps.setDate(4, p.getFechaNacimiento());
             ps.execute(); 
             for(Consulta c:p.getConsultas()){
                 ps = con.prepareStatement(inputStringTwo);
@@ -98,9 +104,11 @@ public class JDBCDaoPaciente implements DaoPaciente {
                 ps.setString(5,p.getTipo_id());
                 ps.execute(); 
             }
+            
         } catch (SQLException ex) {
-            throw new PersistenceException("An error ocurred while loading a product.",ex);
+            Logger.getLogger(JDBCDaoPaciente.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
     }
 
     @Override
