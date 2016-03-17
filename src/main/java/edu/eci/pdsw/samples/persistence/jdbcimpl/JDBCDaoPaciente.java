@@ -57,17 +57,21 @@ public class JDBCDaoPaciente implements DaoPaciente {
             ps.setString(2, tipoid); 
             Set s = new HashSet<Consulta>();
             resultado=ps.executeQuery();
-            while(resultado.next()){
-                if(resultado.isFirst()){
-                    pa = new Paciente(idpaciente,tipoid,resultado.getString(1),resultado.getDate(2));
+            if(resultado.next()){
+                Boolean flag = true;
+                while(flag){
+                    if(resultado.isFirst()){
+                        pa = new Paciente(idpaciente,tipoid,resultado.getString(1),resultado.getDate(2));
+                    }
+                    int consultasId = resultado.getInt(3);
+                    Date consultasFecha = resultado.getDate(4);
+                    String consultasResumen = resultado.getString(5);               
+                    Consulta c = new Consulta(consultasId,consultasFecha,consultasResumen);
+                    s.add(c);
+                    flag=resultado.next();
                 }
-                int consultasId = resultado.getInt(3);
-                Date consultasFecha = resultado.getDate(4);
-                String consultasResumen = resultado.getString(5);               
-                Consulta c = new Consulta(consultasId,consultasFecha,consultasResumen);
-                s.add(c);
+                pa.setConsultas(s);
             }
-            pa.setConsultas(s);
         } catch (SQLException ex) {
             throw new PersistenceException("An error ocurred while loading "+idpaciente,ex);
         }
@@ -94,17 +98,21 @@ public class JDBCDaoPaciente implements DaoPaciente {
             ps.setString(2, p.getTipo_id());
             ps.setString(3, p.getNombre());
             ps.setDate(4, p.getFechaNacimiento());
-            ps.execute(); 
-            for(Consulta c:p.getConsultas()){
-                ps = con.prepareStatement(inputStringTwo);
-                ps.setInt(1,c.getId());
-                ps.setDate(2,c.getFechayHora());
-                ps.setString(3,c.getResumen());
-                ps.setInt(4,p.getId());
-                ps.setString(5,p.getTipo_id());
-                ps.execute(); 
+            ps.execute();
+            if(p.getConsultas().isEmpty()){
+                
+            }   
+            else{
+                for(Consulta c:p.getConsultas()){
+                    ps = con.prepareStatement(inputStringTwo);
+                    ps.setInt(1,c.getId());
+                    ps.setDate(2,c.getFechayHora());
+                    ps.setString(3,c.getResumen());
+                    ps.setInt(4,p.getId());
+                    ps.setString(5,p.getTipo_id());
+                    ps.execute(); 
+                }
             }
-            
         } catch (SQLException ex) {
             Logger.getLogger(JDBCDaoPaciente.class.getName()).log(Level.SEVERE, null, ex);
         }
