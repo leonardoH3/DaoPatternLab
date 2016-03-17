@@ -90,27 +90,29 @@ public class JDBCDaoPaciente implements DaoPaciente {
             ps.setInt(1, p.getId());
             ps.setString(2, p.getTipo_id());
             resultado=ps.executeQuery();
-            if(resultado.first()){
+            if(resultado.next()){
                throw new PersistenceException("El paciente ya se encuentra registrado");
             }
-            ps = con.prepareStatement(inputString);
-            ps.setInt(1, p.getId());
-            ps.setString(2, p.getTipo_id());
-            ps.setString(3, p.getNombre());
-            ps.setDate(4, p.getFechaNacimiento());
-            ps.execute();
-            if(p.getConsultas().isEmpty()){
-                
-            }   
             else{
-                for(Consulta c:p.getConsultas()){
-                    ps = con.prepareStatement(inputStringTwo);
-                    ps.setInt(1,c.getId());
-                    ps.setDate(2,c.getFechayHora());
-                    ps.setString(3,c.getResumen());
-                    ps.setInt(4,p.getId());
-                    ps.setString(5,p.getTipo_id());
-                    ps.execute(); 
+                ps = con.prepareStatement(inputString);
+                ps.setInt(1, p.getId());
+                ps.setString(2, p.getTipo_id());
+                ps.setString(3, p.getNombre());
+                ps.setDate(4, p.getFechaNacimiento());
+                ps.execute();
+                if(p.getConsultas().isEmpty()){
+                
+                }   
+                else{
+                    for(Consulta c:p.getConsultas()){
+                        ps = con.prepareStatement(inputStringTwo);
+                        ps.setInt(1,c.getId());
+                        ps.setDate(2,c.getFechayHora());
+                        ps.setString(3,c.getResumen());
+                        ps.setInt(4,p.getId());
+                        ps.setString(5,p.getTipo_id());
+                        ps.execute(); 
+                    }
                 }
             }
         } catch (SQLException ex) {

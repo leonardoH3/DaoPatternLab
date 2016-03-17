@@ -65,7 +65,7 @@ public class PacientePersistenceTest {
         daof.endSession();        
     }
     
-    //@Test
+    @Test
     public void TestPrimeraClase(){
         //Paciente nuevo que se registra con más de una consulta
        DaoFactory daof = null;
@@ -78,7 +78,7 @@ public class PacientePersistenceTest {
             daof=DaoFactory.getInstance(properties);
             daof.beginSession();
             DaoPaciente dao = daof.getDaoPaciente();
-            Paciente p = new Paciente(1025,"cc","Alberto",java.sql.Date.valueOf("2000-01-01"));
+            Paciente p = new Paciente(1026,"cc","Alberto",java.sql.Date.valueOf("2000-01-01"));
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
             String strDate = "2011-12-31 00:00:00";
             java.util.Date date = sdf.parse(strDate);   
@@ -90,7 +90,7 @@ public class PacientePersistenceTest {
             s.add(cc);
             p.setConsultas(s);
             dao.save(p);
-            Paciente p2=dao.load(1025, "cc");    
+            Paciente p2=dao.load(1026, "cc");    
             daof.commitTransaction();
             daof.endSession();
             //Assert.assertEquals("No se guardaron las consultas correctamente",1025,p2.getId());   
@@ -102,7 +102,7 @@ public class PacientePersistenceTest {
                if (daof != null){
                 daof.rollbackTransaction();
                 daof.endSession();
-                
+                System.out.println(ex.getMessage() + 1);
                }
            } catch (PersistenceException ex1) {
                Logger.getLogger(PacientePersistenceTest.class.getName()).log(Level.SEVERE, null, ex1);
@@ -122,7 +122,7 @@ public class PacientePersistenceTest {
             daof=DaoFactory.getInstance(properties);
             daof.beginSession();
             DaoPaciente dao = daof.getDaoPaciente();
-            Paciente p = new Paciente(1025,"cc","Alberto",java.sql.Date.valueOf("2000-01-01"));
+            Paciente p = new Paciente(1027,"cc","Eduardo",java.sql.Date.valueOf("2000-01-01"));
             dao.save(p);
             Paciente p2=dao.load(1025, "cc");        
             daof.commitTransaction();
@@ -136,6 +136,7 @@ public class PacientePersistenceTest {
                if (daof != null){
                 daof.rollbackTransaction();
                 daof.endSession();
+                System.out.println(ex.getMessage() + 2);
                }
            } catch (PersistenceException ex1) {
                Logger.getLogger(PacientePersistenceTest.class.getName()).log(Level.SEVERE, null, ex1);
@@ -146,8 +147,8 @@ public class PacientePersistenceTest {
    
     //@Test
     public void TestTerceraClase(){
-        //Paciente nuevo que se registra con sólo una consulta
-        DaoFactory daof = null;
+        //Paciente nuevo que se registra con una sola consulta
+       DaoFactory daof = null;
         try{
             //IMPLEMENTACION DE LAS PRUEBAS
             InputStream input = null;
@@ -157,7 +158,7 @@ public class PacientePersistenceTest {
             daof=DaoFactory.getInstance(properties);
             daof.beginSession();
             DaoPaciente dao = daof.getDaoPaciente();
-            Paciente p = new Paciente(1025,"cc","Alberto",java.sql.Date.valueOf("2000-01-01"));
+            Paciente p = new Paciente(1028,"cc","Sergio",java.sql.Date.valueOf("2000-01-01"));
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
             String strDate = "2011-12-31 00:00:00";
             java.util.Date date = sdf.parse(strDate);   
@@ -167,18 +168,19 @@ public class PacientePersistenceTest {
             s.add(c);           
             p.setConsultas(s);
             dao.save(p);
-            Paciente p2=dao.load(1025, "cc");
+            Paciente p2=dao.load(1028, "cc");    
             daof.commitTransaction();
             daof.endSession();
-            //Assert.assertEquals("No se guardo correctamente el paciente nuevo con mas de una consulta","Alberto",p2.getNombre());
-            Assert.assertEquals("No se guardaron las consultas correctamente",1026,p2.getId());   
-            //Assert.assertEquals("No se guardo correctamente la consulta",true,p2.getConsultas().contains(c));    
+            //Assert.assertEquals("No se guardaron las consultas correctamente",1025,p2.getId());   
+            //Assert.assertEquals("No se guardo correctamente la consulta",true,p2.getConsultas().contains(c));
+            Assert.assertEquals("No se guardo correctamente el paciente nuevo con ona sola consulta","Sergio",p2.getNombre());
         }
         catch (PersistenceException | ParseException | IOException ex) {
-           try {
+            try {
                if (daof != null){
                 daof.rollbackTransaction();
                 daof.endSession();
+                System.out.println(ex.getMessage() + 3);
                }
            } catch (PersistenceException ex1) {
                Logger.getLogger(PacientePersistenceTest.class.getName()).log(Level.SEVERE, null, ex1);
@@ -198,7 +200,7 @@ public class PacientePersistenceTest {
             daof=DaoFactory.getInstance(properties);
             daof.beginSession();
             DaoPaciente dao = daof.getDaoPaciente();
-            Paciente p = new Paciente(1025,"cc","Alberto",java.sql.Date.valueOf("2000-01-01"));
+            Paciente p = new Paciente(1029,"cc","Andrea",java.sql.Date.valueOf("2000-01-01"));
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd hh:mm:ss");
             String strDate = "2011-12-31 00:00:00";
             java.util.Date date = sdf.parse(strDate);   
@@ -210,19 +212,17 @@ public class PacientePersistenceTest {
             s.add(cc);
             p.setConsultas(s);
             dao.save(p);
-            Paciente p2=dao.load(1025, "cc");    
+            dao.save(p);
+            Paciente p2=dao.load(1029, "cc");    
             daof.commitTransaction();
             daof.endSession();
-            //Assert.assertEquals("No se guardaron las consultas correctamente",1025,p2.getId());   
-            //Assert.assertEquals("No se guardo correctamente la consulta",true,p2.getConsultas().contains(c));
-            Assert.assertEquals("No se guardo correctamente el paciente nuevo con mas de una consulta","Alberto",p2.getNombre());
         }
         catch (PersistenceException | ParseException | IOException ex) {
             try {
                if (daof != null){
                 daof.rollbackTransaction();
                 daof.endSession();
-                
+                System.out.println("Se encontraron errores: "+ex.getMessage());
                }
            } catch (PersistenceException ex1) {
                Logger.getLogger(PacientePersistenceTest.class.getName()).log(Level.SEVERE, null, ex1);
